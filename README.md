@@ -1,52 +1,52 @@
 # pi-dev — Agentic Coding Harness
 
-Mi harness de desarrollo con agentes, compartido entre **Pi** (`~/.pi/agent/`) y **Antigravity CLI (`agy`)** (`~/.gemini/`), orquestado dentro de **bb**.
+Personal agentic coding harness shared across **Pi** (`~/.pi/agent/`) and **Antigravity CLI (`agy`)** (`~/.gemini/`), orchestrated inside **bb**.
 
-## Estructura del repositorio
+## Repository Layout
 
 ```text
 pi-dev/
-├── pi/                     # Espejo limpio de ~/.pi/agent/
-│   ├── AGENTS.md           # Reglas globales (git worktrees, YAGNI, TDD, PRs, modo ADHD)
-│   ├── settings.json       # Paquetes, modelo por defecto y observational memory
-│   ├── mcp.json            # MCP servers (ClickUp, Toggl vía macOS Keychain)
-│   ├── web-search.json     # Routing de búsqueda web
-│   ├── i-have-adhd.json    # Modo comunicación ADHD siempre activo
+├── pi/                     # Sanitized mirror of ~/.pi/agent/
+│   ├── AGENTS.md           # Global rules (git worktrees, YAGNI, TDD, PRs, ADHD mode)
+│   ├── settings.json       # Packages, default model, and observational memory
+│   ├── mcp.json            # MCP servers (ClickUp, Toggl via macOS Keychain)
+│   ├── web-search.json     # Web search provider routing
+│   ├── i-have-adhd.json    # ADHD communication mode always enabled
 │   ├── agents/             # implementer, reviewer, simplify-reviewer
 │   ├── skills/             # grilling, plan, review-plan, implement, create-pr, finish, ...
 │   ├── prompts/            # tdd-1..6, explore, simplify, review-tests, session-retro, ...
 │   ├── extensions/         # english-coach, bash-minimal, read-minimal, cockpit, plan-usage, ...
-│   ├── patches/            # Parche de advisor notice para pi-claude-bridge
+│   ├── patches/            # Advisor notice patch for pi-claude-bridge
 │   └── themes/             # minimal, nightowl
-├── gemini/                 # Espejo limpio de ~/.gemini/
-│   ├── AGENTS.md           # Importa ~/.pi/agent/AGENTS.md + i-have-adhd + mapeo Antigravity
+├── gemini/                 # Sanitized mirror of ~/.gemini/
+│   ├── AGENTS.md           # Imports ~/.pi/agent/AGENTS.md + i-have-adhd + Antigravity mapping
 │   └── config/
-│       ├── agents/         # implementer, reviewer, simplify-reviewer adaptados a agy
-│       ├── hooks.json      # Hook PreInvocation para english-coach
+│       ├── agents/         # implementer, reviewer, simplify-reviewer adapted for agy
+│       ├── hooks.json      # PreInvocation hook for english-coach
 │       ├── hooks/          # english-coach.sh
-│       └── skills.json     # Rutas de skills compartidos
-├── shared-skills/          # Skills compartidos de ~/.agents/skills/ (domain-modeling, prototype, research, wayfinder)
+│       └── skills.json     # Shared skill paths
+├── shared-skills/          # Shared skills from ~/.agents/skills/ (domain-modeling, prototype, research, wayfinder)
 └── scripts/
-    └── sync.sh             # Actualiza este repo desde ~/.pi/agent/, ~/.gemini/ y ~/.agents/skills/
+    └── sync.sh             # Syncs this repo from ~/.pi/agent/, ~/.gemini/, and ~/.agents/skills/
 ```
 
-## Cómo funciona el workflow
+## How the Workflow Works
 
-La sesión principal coordina y revisa, pero **nunca edita código del repo directamente**:
+The main session orchestrates, plans, and reviews, and **never edits repository code directly**:
 
-1. **`/skill:grilling`** — entrevista en rondas sobre el árbol de decisiones hasta eliminar ambigüedades.
-2. **`/skill:plan`** — escribe el plan más simple posible en `~/.pi/agent/plans/<repo>/<feature>.md`.
-3. **`/skill:review-plan`** — valida rutas, comandos y decisiones antes de escribir código.
-4. **`/skill:implement`** — crea un git worktree aislado y coordina tres subagentes en rondas:
-   - `implementer` (TDD estricto, 1 commit por tarea, minimización de tests).
-   - `reviewer` (solo lectura: calidad, seguridad y correctitud).
-   - `simplify-reviewer` (solo lectura: valida si es la solución más simple).
-5. **`/skill:create-pr`** — abre el PR como draft asignado a `@me`.
-6. **`/skill:finish`** — convierte errores repetidos en checks deterministas, limpia el worktree y cierra la tarea.
+1. **`/skill:grilling`** — interviews through the decision tree in rounds until no ambiguity remains.
+2. **`/skill:plan`** — writes the simplest implementation plan to `~/.pi/agent/plans/<repo>/<feature>.md`.
+3. **`/skill:review-plan`** — verifies paths, commands, and decisions before any code is written.
+4. **`/skill:implement`** — creates an isolated git worktree and runs three subagents in rounds:
+   - `implementer` (strict TDD, one commit per task, test minimization).
+   - `reviewer` (read-only: quality, security, and correctness).
+   - `simplify-reviewer` (read-only: checks whether the solution is the simplest one possible).
+5. **`/skill:create-pr`** — opens a draft PR assigned to `@me`.
+6. **`/skill:finish`** — turns repeated mistakes into deterministic project checks, removes the worktree, logs hours, and deletes the plan.
 
-## Cómo actualizar este repo con cambios locales
+## Syncing Local Changes
 
-Ejecuta el script de sincronización (usa lista blanca estricta; nunca copia credenciales, `sessions/`, `plans/` ni logs):
+Run the sync script (strict allowlist; never copies credentials, internal work skills, `sessions/`, `plans/`, or logs):
 
 ```bash
 ./scripts/sync.sh
@@ -54,7 +54,7 @@ git status
 git add -A && git commit -m "Sync harness" && git push
 ```
 
-## Qué queda excluido a propósito
+## Intentionally Excluded
 
-Nunca se versionan credenciales, skills internos de trabajo ni estado efímero de máquina:
-`auth.json`, `mcp-auth.json`, `models-store.json`, `trust.json`, `claude-bridge.json`, `pi/skills/semantix/`, `*.log`, `sessions/`, `plans/`, `cc-cli-logs/`, `web-search-cache/`, `npm/`, `git/`, `bin/`, `install/` ni `~/.gemini/antigravity-cli/`. `scripts/sync.sh` también reemplaza la ruta local de `$HOME` por `~` antes de guardar.
+Credentials, work-specific skills, and ephemeral machine state are never committed:
+`auth.json`, `mcp-auth.json`, `models-store.json`, `trust.json`, `claude-bridge.json`, `pi/skills/semantix/`, `*.log`, `sessions/`, `plans/`, `cc-cli-logs/`, `web-search-cache/`, `npm/`, `git/`, `bin/`, `install/`, and `~/.gemini/antigravity-cli/`. `scripts/sync.sh` also replaces the local `$HOME` path with `~` before writing.
