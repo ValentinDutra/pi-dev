@@ -1,0 +1,7 @@
+{
+  "english-coach": {
+    "PreInvocation": [
+      { "type": "command", "command": "~/.gemini/config/hooks/english-coach.sh", "timeout": 10 }
+    ]
+  }
+}

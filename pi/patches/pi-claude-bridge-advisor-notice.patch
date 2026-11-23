@@ -1,0 +1,54 @@
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -5,7 +5,8 @@
+ import type { Base64ImageSource, ContentBlockParam } from "@anthropic-ai/sdk/resources";
+ import { Text } from "@earendil-works/pi-tui";
+ import { createSession, deleteSession, openSession, repairToolPairing } from "cc-session-io";
+-import { appendFileSync, mkdirSync, realpathSync, statSync } from "fs";
++import { appendFileSync, mkdirSync, readFileSync, realpathSync, statSync } from "fs";
++import { homedir } from "os";
+ import { dirname, join } from "path";
+ import { PROVIDER_ID, messageContentToText, convertPiMessages } from "./convert.js";
+ import { debugLogPath, diagLogPath } from "./log-paths.js";
+@@ -1199,6 +1200,32 @@
+ 	c.currentPiStream = null;
+ }
+ 
++function configuredAdvisorModel(): string {
++	try {
++		return JSON.parse(readFileSync(join(homedir(), ".claude", "settings.json"), "utf8")).advisorModel ?? "advisor";
++	} catch {
++		return "advisor";
++	}
++}
++
++// The advisor runs server-side, so pi never sees it as a tool call. Show each consultation as its
++// own text block. Claude Code returns the advice itself encrypted (advisor_redacted_result) unless
++// the advisor produced readable text (advisor_result).
++function pushAdvisorNotice(c: QueryContext, result: { type?: string; text?: string; error_code?: string } | undefined): void {
++	const heading = `**Advisor consulted (${configuredAdvisorModel()})**`;
++	const text = result?.type === "advisor_result" && result.text
++		? `> ${heading}\n>\n> ${result.text.replace(/\n/g, "\n> ")}\n\n`
++		: result?.error_code
++			? `> ${heading}: unavailable (${result.error_code})\n\n`
++			: `> ${heading}\n\n`;
++	ensureTurnStarted(c);
++	c.turnBlocks.push({ type: "text", text });
++	const contentIndex = c.turnBlocks.length - 1;
++	c.currentPiStream!.push({ type: "text_start", contentIndex, partial: c.turnOutput });
++	c.currentPiStream!.push({ type: "text_delta", contentIndex, delta: text, partial: c.turnOutput });
++	c.currentPiStream!.push({ type: "text_end", contentIndex, content: text, partial: c.turnOutput });
++}
++
+ /** Maps Anthropic stream events to pi stream events (text, thinking, toolcall).
+  *  On message_stop with tool_use: ends currentPiStream so pi can execute the tool. */
+ function processStreamEvent(
+@@ -1246,6 +1273,8 @@
+ 				partialJson: "", index: event.index,
+ 			});
+ 			c.currentPiStream!.push({ type: "toolcall_start", contentIndex: c.turnBlocks.length - 1, partial: c.turnOutput });
++		} else if (event.content_block?.type === "advisor_tool_result") {
++			pushAdvisorNotice(c, event.content_block.content);
+ 		} else {
+ 			debug("processStreamEvent: unhandled content_block_start type", event.content_block?.type);
+ 		}

@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+
+# Secrets and credentials (never commit)
+auth.json
+mcp-auth.json
+models-store.json
+*.pem
+*.key
+.env
+.env.*
+
+# Work-specific skills (never commit)
+pi/skills/semantix/
+
+# Runtime state, logs, and caches
+*.log
+sessions/
+plans/
+cc-cli-logs/
+web-search-cache/
+.english-coach-state/
+node_modules/

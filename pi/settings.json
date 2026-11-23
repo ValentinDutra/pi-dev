@@ -1,0 +1,33 @@
+{
+  "lastChangelogVersion": "1.2.0",
+  "packages": [
+    "npm:pi-claude-bridge",
+    "npm:pi-web-access",
+    "https://github.com/ayghri/i-have-adhd",
+    "https://github.com/nicootto/pi-interactive-subagents",
+    "npm:pi-observational-memory"
+  ],
+  "defaultProvider": "claude-bridge",
+  "defaultModel": "claude-opus-5-5",
+  "defaultThinkingLevel": "high",
+  "theme": "minimal",
+  "tuiMode": "fullscreen",
+  "fullscreenScrollbar": "auto",
+  "fullscreenExitOutput": "transcript",
+  "editorPaddingX": 2,
+  "outputPad": 0,
+  "showHardwareCursor": false,
+  "terminal": {
+    "showImages": true
+  },
+  "observational-memory": {
+    "compactAfterTokensMode": "ratio",
+    "compactAfterTokensRatio": 0.5,
+    "compactAfterTokens": 100000,
+    "model": {
+      "provider": "claude-bridge",
+      "id": "claude-haiku-5-5",
+      "thinking": "high"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "path": "~/.pi/agent/skills"
+    },
+    {
+      "path": "~/.agents/skills"
+    }
+  ]
+}

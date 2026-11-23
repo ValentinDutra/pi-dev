@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "clickup": {
+      "url": "https://mcp.clickup.com/mcp"
+    },
+    "toggl": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@verygoodplugins/mcp-toggl@latest"
+      ],
+      "env": {
+        "TOGGL_API_KEY": "!security find-generic-password -s toggl-api -w"
+      },
+      "description": "Toggl Track time tracking: timers, time entries, reports"
+    }
+  }
+}

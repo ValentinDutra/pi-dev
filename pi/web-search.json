@@ -1,0 +1,6 @@
+{
+  "searchRouting": {
+    "providers": ["exa", "duckduckgo", "keenable"],
+    "fallbackOn": ["transient", "quota", "network", "invalid-response"]
+  }
+}
